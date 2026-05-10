@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>BaoziStore - Gestão</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #popupMensagem {
+            display:none; position:fixed; top:20px; right:20px; min-width:300px; 
+            z-index:9999; padding:15px; border-radius:5px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+            color: white; transition: opacity 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="container mt-5">
+
+    <h2 class="mb-4">Gestão BaoziStore</h2>
+
+    <div id="popupMensagem">
+        <span id="textoMensagem"></span>
+        <button onclick="document.getElementById('popupMensagem').style.display='none'" 
+                style="float:right; background:none; border:none; color:white; font-weight:bold;">&times;</button>
+    </div>
+
+    <div class="accordion" id="accordionCadastro">
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProd"
+                        th:classappend="${produto.id != null} ? '' : 'collapsed'">
+                    1. Gerir Produtos
+                </button>
+            </h2>
+            <div id="collapseProd" class="accordion-collapse collapse" th:classappend="${produto.id != null} ? 'show' : ''">
+                <div class="accordion-body">
+                    <form th:action="@{/produtos/salvar}" th:object="${produto}" method="POST" class="mb-4">
+                        <input type="hidden" th:field="*{id}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nome</label>
+                                <input type="text" th:field="*{nome}" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Preço</label>
+                                <input type="number" step="0.01" th:field="*{preco}" class="form-control" required>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end mb-2">
+                                <div class="form-check">
+                                    <input type="checkbox" th:field="*{estoque}" class="form-check-input" id="checkEstoque">
+                                    <label class="form-check-label" for="checkEstoque">Em Estoque</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Salvar Produto</button>
+                    </form>
+
+                    <table class="table table-sm table-hover border-top">
+                        <thead><tr><th>Nome</th><th>Preço</th><th>Opções</th></tr></thead>
+                        <tbody>
+                            <tr th:each="p : ${produtos}">
+                                <td th:text="${p.nome}"></td>
+                                <td th:text="'R$ ' + ${p.preco}"></td>
+                                <td>
+                                    <a th:href="@{/info/produto/editar/{id}(id=${p.id})}" class="text-info me-2">Editar</a>
+                                    <a th:href="@{/info/produto/excluir/{id}(id=${p.id})}" class="text-danger" onclick="return confirm('Excluir?')">Excluir</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCli"
+                        th:classappend="${cliente.id != null} ? '' : 'collapsed'">
+                    2. Gerir Clientes
+                </button>
+            </h2>
+            <div id="collapseCli" class="accordion-collapse collapse" th:classappend="${cliente.id != null} ? 'show' : ''">
+                <div class="accordion-body">
+                    <form th:action="@{/clientes/salvar}" th:object="${cliente}" method="POST" class="mb-4">
+                        <input type="hidden" th:field="*{id}">
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Nome Completo</label>
+                                <input type="text" th:field="*{nome}" class="form-control" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Desde</label>
+                                <input type="date" th:field="*{clienteDesde}" class="form-control" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Salvar Cliente</button>
+                    </form>
+
+                    <table class="table table-sm table-hover border-top">
+                        <thead><tr><th>Nome</th><th>Opções</th></tr></thead>
+                        <tbody>
+                            <tr th:each="c : ${clientes}">
+                                <td th:text="${c.nome}"></td>
+                                <td>
+                                    <a th:href="@{/info/cliente/editar/{id}(id=${c.id})}" class="text-info me-2">Editar</a>
+                                    <a th:href="@{/info/cliente/excluir/{id}(id=${c.id})}" class="text-danger" onclick="return confirm('Excluir?')">Excluir</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePed"
+                        th:classappend="${pedido.id != null} ? '' : 'collapsed'">
+                    3. Realizar Novo Pedido
+                </button>
+            </h2>
+            <div id="collapsePed" class="accordion-collapse collapse" th:classappend="${pedido.id != null} ? 'show' : ''" data-bs-parent="#accordionCadastro">
+                <div class="accordion-body">
+                    <form th:action="@{/info/salvar}" th:object="${pedido}" method="POST">
+                        <input type="hidden" th:field="*{id}">
+                        <div class="mb-3">
+                            <label class="form-label">Data do Pedido</label>
+                            <input type="date" th:field="*{dataPedido}" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cliente</label>
+                            <select th:field="*{cliente.id}" class="form-select" required>
+                                <option value="">Selecione o Cliente</option>
+                                <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Produto</label>
+                            <select th:field="*{produto.id}" class="form-select" required>
+                                <option value="">Selecione o Produto</option>
+                                <option th:each="p : ${produtos}" th:value="${p.id}" th:text="${p.nome}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantidade</label>
+                            <input type="number" th:field="*{quantidade}" class="form-control" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Finalizar Pedido</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a th:href="@{/info/consulta}" class="btn btn-secondary">Ir para Consulta</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.onload = function() {
+            var msgSuccess = /*[[${success}]]*/ null;
+            var msgFail = /*[[${fail}]]*/ null;
+            var popup = document.getElementById('popupMensagem');
+            
+            if (msgSuccess || msgFail) {
+                document.getElementById('textoMensagem').innerText = msgSuccess || msgFail;
+                popup.style.backgroundColor = msgSuccess ? '#198754' : '#dc3545';
+                popup.style.display = 'block';
+                setTimeout(function() { popup.style.opacity = '0'; }, 4000);
+                setTimeout(function() { popup.style.display = 'none'; }, 4500);}
+        };
+    </script>
+        <p>&copy; 2026 Anderson Oliveira Silva (4918513).</p>
+</body>
+</html>
